@@ -81,6 +81,7 @@ export default function App() {
               <span>Team</span>
               <span>Wins</span>
               <span>Points</span>
+              <span>Progress</span>
             </div>
             {rest.map((driver) => (
               <DriverRow key={driver.driverId} driver={driver} />
