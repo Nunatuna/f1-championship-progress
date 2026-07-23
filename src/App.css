@@ -5,7 +5,7 @@
   --color-border: #2a2a30;
   --color-text: #f4f4f5;
   --color-text-muted: #9a9aa2;
-  --color-accent: #e10600; /* swap for whatever you like */
+  --color-accent: #e10600;
   --color-clinched: #2fbf71;
 
   --color-p1: #efbf04;
@@ -31,7 +31,7 @@ body {
 .page {
   max-width: 960px;
   margin: 0 auto;
-  padding: 32px 20px 80px;
+  padding: 32px 20px 32px;
 }
 
 .page__header {
@@ -41,6 +41,69 @@ body {
 .page__header h1 {
   margin: 0 0 4px;
   font-size: 28px;
+}
+
+/* ---------- Nav ---------- */
+
+.nav-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.nav-bar__link {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.nav-bar__link:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.nav-bar__link--active {
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+  border-color: var(--color-text-muted);
+}
+
+/* ---------- About page ---------- */
+
+.about-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 680px;
+}
+
+.about-section h2 {
+  font-size: 16px;
+  margin: 0 0 8px;
+}
+
+.about-section p {
+  margin: 0 0 10px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.about-steps {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.about-steps strong {
+  color: var(--color-text);
 }
 
 .page__subtitle {
@@ -57,6 +120,16 @@ body {
 
 .page__status--error {
   color: var(--color-accent);
+}
+
+.page__status--stale {
+  text-align: left;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 13px;
 }
 
 .page__footer {
@@ -213,12 +286,8 @@ body {
   border-bottom: 1px solid var(--color-border);
 }
 
-.driver-row--header span:last-child {
-  text-align: right;
-}
-
-.driver-row > *:nth-last-child(-n + 3) {
-  text-align: right;
+.driver-row:last-child {
+  border-bottom: none;
 }
 
 .driver-row--header {
@@ -244,7 +313,13 @@ body {
 }
 
 .driver-row__wins,
-.driver-row__points {
+.driver-row__points,
+.driver-row__progress {
   text-align: right;
   font-family: var(--font-mono);
+}
+
+.driver-row__progress--clinched {
+  color: var(--color-clinched);
+  font-weight: 600;
 }

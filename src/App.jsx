@@ -1,17 +1,41 @@
 import { useEffect, useState } from "react";
 import { fetchDriverStandings, fetchRaceSchedule } from "./api/f1Api.js";
 import { calculateChampionshipData, getMaxRemainingPoints } from "./utils/championship.js";
-import TopThreeCard from "./components/TopThreeCard.jsx";
-import DriverRow from "./components/DriverRow.jsx";
+import { loadCachedStandings, saveCachedStandings } from "./utils/cache.js";
+import NavBar from "./components/NavBar.jsx";
+import StandingsPage from "./pages/StandingsPage.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
 import Footer from "./components/Footer.jsx";
 
+function getPageFromHash() {
+  return window.location.hash === "#about" ? "about" : "standings";
+}
+
 export default function App() {
+  const [page, setPage] = useState(getPageFromHash());
+
   const [status, setStatus] = useState("loading"); // "loading" | "error" | "ready"
   const [error, setError] = useState(null);
   const [season, setSeason] = useState(null);
   const [round, setRound] = useState(null);
+  const [totalRounds, setTotalRounds] = useState(null);
   const [drivers, setDrivers] = useState([]);
   const [maxRemainingPoints, setMaxRemainingPoints] = useState(0);
+  const [isStale, setIsStale] = useState(false);
+  const [cachedAt, setCachedAt] = useState(null);
+
+  useEffect(() => {
+    function onHashChange() {
+      setPage(getPageFromHash());
+    }
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  function navigate(nextPage) {
+    window.location.hash = nextPage === "about" ? "#about" : "";
+    setPage(nextPage);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -26,16 +50,44 @@ export default function App() {
         if (cancelled) return;
 
         const remaining = getMaxRemainingPoints(schedule, standings.round);
+        const computedDrivers = calculateChampionshipData(standings.drivers, remaining);
 
         setSeason(standings.season);
         setRound(standings.round);
+        setTotalRounds(schedule.length);
         setMaxRemainingPoints(remaining);
-        setDrivers(calculateChampionshipData(standings.drivers, remaining));
+        setDrivers(computedDrivers);
+        setIsStale(false);
+        setCachedAt(null);
         setStatus("ready");
+
+        saveCachedStandings({
+          season: standings.season,
+          round: standings.round,
+          totalRounds: schedule.length,
+          maxRemainingPoints: remaining,
+          drivers: computedDrivers,
+        });
       } catch (err) {
         if (cancelled) return;
-        setError(err.message ?? "Something went wrong");
-        setStatus("error");
+
+        // Live fetch failed — fall back to the last successful response,
+        // if we have one, instead of showing an empty/broken page.
+        const cached = loadCachedStandings();
+
+        if (cached) {
+          setSeason(cached.season);
+          setRound(cached.round);
+          setTotalRounds(cached.totalRounds ?? null);
+          setMaxRemainingPoints(cached.maxRemainingPoints);
+          setDrivers(cached.drivers);
+          setIsStale(true);
+          setCachedAt(cached.fetchedAt);
+          setStatus("ready");
+        } else {
+          setError(err.message ?? "Something went wrong");
+          setStatus("error");
+        }
       }
     }
 
@@ -45,53 +97,34 @@ export default function App() {
     };
   }, []);
 
-  const topThree = drivers.slice(0, 3);
-  const rest = drivers.slice(3);
-
   return (
     <div className="page">
       <header className="page__header">
-        <h1>F1 Championship Progress - {season ? `${season} season` : "Current season"}</h1>
+        <h1>F1 Driver Championship</h1>
         <p className="page__subtitle">
-          {round ? `Progress after round ${round}` : ""}
+          {season ? `${season} season` : "Current season"}
+          {round ? ` · through round ${round}` : ""}
+          {" / "}
+          {totalRounds ?? "—"}
         </p>
+        <NavBar page={page} onNavigate={navigate} />
       </header>
 
-      {status === "loading" && <p className="page__status">Loading standings…</p>}
-
-      {status === "error" && (
-        <p className="page__status page__status--error">
-          Couldn't load standings: {error}
-        </p>
+      {page === "standings" ? (
+        <StandingsPage
+          status={status}
+          error={error}
+          season={season}
+          round={round}
+          totalRounds={totalRounds}
+          isStale={isStale}
+          cachedAt={cachedAt}
+          drivers={drivers}
+        />
+      ) : (
+        <AboutPage />
       )}
-
-      {status === "ready" && (
-        <>
-          <section className="top-three">
-            {topThree.map((driver) => (
-              <TopThreeCard key={driver.driverId} driver={driver} />
-            ))}
-          </section>
-
-          <section className="standings-list">
-            <div className="driver-row driver-row--header">
-              <span>Pos</span>
-              <span>Driver</span>
-              <span>Name</span>
-              <span>Team</span>
-              <span>Wins</span>
-              <span>Points</span>
-              <span>Progress</span>
-            </div>
-            {rest.map((driver) => (
-              <DriverRow key={driver.driverId} driver={driver} />
-            ))}
-          </section>
-        </>
-      )}
-      <footer>
-        <Footer />
-      </footer>
+      <Footer />
     </div>
   );
 }
