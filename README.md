@@ -1,93 +1,132 @@
-# F1 Championship Standings
+# 🏁 [F1 Championship Progress](https://nunatuna.github.io/f1-championship-progress/)
 
-A small React (Vite) app that shows the current F1 driver standings as a
-leaderboard, with the top 3 drivers highlighted and a progress bar showing
-how close each is to mathematically clinching the championship.
+**F1 Progress** is an independent, fan-made Formula 1 championship tracker that visualizes how close each driver is to mathematically securing the World Drivers' Championship.
 
-## Deploying to GitHub Pages
+Instead of only displaying the current standings, F1 Progress answers the question:
 
-This repo already includes a GitHub Actions workflow
-(`.github/workflows/deploy.yml`) that builds and deploys automatically on
-every push to `main`. To turn it on:
+> **"How far is each driver from becoming World Champion?"**
 
-1. Push this project to a new GitHub repo.
-2. In the repo, go to **Settings → Pages**, and under **Source** select
-   **GitHub Actions**.
-3. Push to `main` (or click **Run workflow** on the action manually). The
-   first run creates the deployment; after that it redeploys automatically
-   whenever you push.
-4. Your site will be live at `https://<username>.github.io/<repo-name>/`
-   (or just `https://<username>.github.io/` if this is a
-   `<username>.github.io` repo).
+Each driver's progress is shown as a visual progress bar based on the maximum number of points their closest rival can still achieve.
 
-`vite.config.js` uses a relative `base: "./"`, so the build works at either
-kind of URL without you needing to hardcode the repo name anywhere.
+> This is an unofficial fan project and is **not affiliated with Formula 1®, FIA, or any Formula 1 team**.
 
-## Run it
+---
 
-```bash
-npm install
-npm run dev
+## Site
+
+[F1 Championship Progress](https://nunatuna.github.io/f1-championship-progress/)
+
+![Homepage](./assets/fcp.jpg)
+
+---
+
+# Championship Mathematics
+
+The goal is **not** to predict who will become champion.
+
+Instead, the app calculates **how close every driver is to mathematically securing the title.**
+
+The important thing to understand is:
+
+> **A single driver can only score the points available to one driver, not the combined remaining points available to the entire grid.**
+
+Because of this, the app calculates the maximum number of points **one driver** can still score.
+
+```text
+Max Remaining Points =
+(Remaining Grand Prix × 25)
++
+(Remaining Sprint Races × 8)
 ```
 
-Then open the printed local URL (usually `http://localhost:5173`).
+(Fastest lap points are intentionally excluded, as they were removed from Formula 1 beginning with the 2025 season.)
 
-## Structure
+The remaining calendar is fetched directly from the API, meaning the calculation automatically adapts if races or sprint weekends are added, removed, or rescheduled.
+
+For every driver, the app performs the following calculations:
+
+1. **Maximum possible points**
+
+   ```text
+   current points + maximum remaining points
+   ```
+
+2. **Rival's best possible finish**
+
+   The highest maximum score among every other driver.
+
+3. **Championship lock threshold**
+
+   ```text
+   rival max + 1
+   ```
+
+4. **Points still required**
+
+   ```text
+   championship lock threshold − current points
+   ```
+
+5. **Progress**
+
+   ```text
+   current points / championship lock threshold
+   ```
+
+   capped at **100%**.
+
+6. **Clinched**
+
+   Once:
+
+   ```text
+   current points > rival's best possible finish
+   ```
+
+This calculation is performed **for every driver**, allowing every driver card to display that driver's individual progress toward mathematically securing the championship.
+
+---
+
+# Data Source
+
+The project uses the excellent [Jolpica API](https://github.com/jolpica/jolpica-f1).
+
+Current driver standings:
 
 ```
-src/
-  api/f1Api.js            fetches + normalizes the Jolpica/Ergast API response
-  utils/championship.js   the clinch-progress math
-  components/
-    TopThreeCard.jsx      highlighted card for P1-P3 (with progress bar)
-    ProgressBar.jsx        the bar itself
-    DriverRow.jsx          a single row for P4 and below
-  App.jsx                  fetch -> compute -> render
-  App.css                  template styling (CSS variables at the top — swap these)
+https://api.jolpi.ca/ergast/f1/current/driverstandings.json
 ```
 
-## The math
-
-The key thing to get right here: **a single driver can only score their own
-share of the remaining races** — not the whole field's combined remaining
-points pool. So instead of a fixed season-total constant, `getMaxRemainingPoints()`
-in `src/utils/championship.js` pulls the actual remaining calendar from the
-API (`fetchRaceSchedule()`) and calculates:
+Current race schedule:
 
 ```
-maxRemainingPoints = (remaining races × 25)   // race win, no fastest-lap bonus (removed 2025+)
-                    + (remaining sprints × 8) // sprint win
+https://api.jolpi.ca/ergast/f1/current/races.json
 ```
 
-"Remaining" is anything with a round number after the round the standings
-response has already counted. This self-corrects if races get added, dropped,
-or rescheduled mid-season — no constant to manually update.
+No API key is required.
 
-Then for every driver:
+---
 
-1. **Max possible points** = `driver's current points + maxRemainingPoints`
-2. **Rival's best case** = the highest "max possible points" among every
-   *other* driver
-3. **Points needed to lock the title** = `rival's best case + 1`
-4. **Points still needed** = `points needed to lock - driver's current points`
-5. **Progress %** = `current points / points needed to lock`, capped at 100%
-6. **Clinched** = `true` once `current points > rival's best case`
+# Tech Stack
 
-This is computed for every driver (not just P1), so each of the top 3 cards
-shows that driver's own progress toward locking the title against the best
-case of everyone else in the field.
+- React
+- TypeScript
+- Vite
+- CSS
+- Jolpica F1 API
 
-## Customizing
+---
 
-- All colors/spacing live as CSS variables at the top of `App.css` — that's
-  the only styling in here, meant purely as a scaffold for you to restyle.
-- `TopThreeCard.jsx` and `DriverRow.jsx` are intentionally plain markup so you
-  can restructure freely without fighting existing styles.
+# Disclaimer
 
-## Notes on the API
+F1 Progress is an independent fan-made project.
 
-- `https://api.jolpi.ca/ergast/f1/current/driverstandings.json` returns the
-  *current* season's standings. Before the season starts or between data
-  updates it may return an empty standings list — the app handles that
-  case rather than crashing.
-- No API key is required.
+It is **not affiliated with, endorsed by, or connected to Formula 1®, FIA, or any Formula 1 team.**
+
+Championship data is provided by the **Jolpica F1 API**, which is licensed under the Apache License 2.0.
+
+---
+
+## License
+
+API software is provided under the Apache License 2.0 by the [Jolpica](https://github.com/jolpica/jolpica-f1) project.
