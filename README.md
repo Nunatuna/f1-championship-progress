@@ -29,13 +29,6 @@ This is computed for every driver (not just P1), so each of the top 3 cards
 shows that driver's own progress toward locking the title against the best
 case of everyone else in the field.
 
-## Customizing
-
-- All colors/spacing live as CSS variables at the top of `App.css` — that's
-  the only styling in here, meant purely as a scaffold for you to restyle.
-- `TopThreeCard.jsx` and `DriverRow.jsx` are intentionally plain markup so you
-  can restructure freely without fighting existing styles.
-
 ## Notes on the API
 
 - `https://api.jolpi.ca/ergast/f1/current/driverstandings.json` returns the
