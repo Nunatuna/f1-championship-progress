@@ -23,7 +23,7 @@ Each driver's progress is shown as a visual progress bar based on the maximum nu
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 *(Coming soon)*
 
