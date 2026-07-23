@@ -126,20 +126,6 @@ No API key is required.
 
 ---
 
-# Running locally
-
-```bash
-git clone https://github.com/yourusername/f1-progress.git
-
-cd f1-progress
-
-npm install
-
-npm run dev
-```
-
----
-
 # Disclaimer
 
 F1 Progress is an independent fan-made project.
