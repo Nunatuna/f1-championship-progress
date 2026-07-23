@@ -1,4 +1,4 @@
-# 🏁 F1 Progress
+# 🏁 [F1 Championship Progress](https://nunatuna.github.io/f1-championship-progress/)
 
 **F1 Progress** is an independent, fan-made Formula 1 championship tracker that visualizes how close each driver is to mathematically securing the World Drivers' Championship.
 
@@ -9,17 +9,6 @@ Instead of only displaying the current standings, F1 Progress answers the questi
 Each driver's progress is shown as a visual progress bar based on the maximum number of points their closest rival can still achieve.
 
 > This is an unofficial fan project and is **not affiliated with Formula 1®, FIA, or any Formula 1 team**.
-
----
-
-## Features
-
-- Live Formula 1 Driver Championship standings
-- Progress bars showing championship-clinching progress
-- Automatic championship calculations based on the remaining race calendar
-- No manual updates required as races are completed
-- Responsive design
-- Built with React + TypeScript + Vite
 
 ---
 
@@ -98,7 +87,7 @@ This calculation is performed **for every driver**, allowing every driver card t
 
 # Data Source
 
-The project uses the excellent **Jolpica F1 API**.
+The project uses the excellent [Jolpica API](https://github.com/jolpica/jolpica-f1).
 
 Current driver standings:
 
@@ -138,6 +127,4 @@ Championship data is provided by the **Jolpica F1 API**, which is licensed under
 
 ## License
 
-This project is licensed under the MIT License.
-
-API software is provided separately under the Apache License 2.0 by the Jolpica project.
+API software is provided under the Apache License 2.0 by the [Jolpica](https://github.com/jolpica/jolpica-f1) project.
