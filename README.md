@@ -12,9 +12,11 @@ Each driver's progress is shown as a visual progress bar based on the maximum nu
 
 ---
 
-## Screenshots
+## Site
 
-*(Coming soon)*
+[F1 Championship Progress](https://nunatuna.github.io/f1-championship-progress/)
+
+![Homepage](./assets/fcp.jpg)
 
 ---
 
